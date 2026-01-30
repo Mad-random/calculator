@@ -33,6 +33,7 @@ body {
   width: 18rem;
   height: 27rem;
   border-radius: 1rem;
+  flex-shrink: 0;
 }
 
 .display {
