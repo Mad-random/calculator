@@ -3,19 +3,20 @@ const display = document.getElementById("display-digits");
 const clearBtn = document.getElementById("clear");
 const equalsBtn = document.getElementById("equals");
 
-let num1 = 0;
-let num2;
-let operator;
-let result;
+let num1 = null;
+let num2 = null;
+let operator = null;
+let result = null;
 
 function clearInput() {
-  num1 = 0;
+  num1 = null;
   num2 = null;
   operator = null;
 }
 
 function renderDisplay() {
-  display.textContent = num1;
+  console.log(result);
+  display.textContent = result;
 }
 
 function add(num1, num2) {
@@ -36,71 +37,72 @@ function divide(num1, num2) {
 
 function operate() {
   if (operator === "plus") {
-    num1 = add(+num1, +num2);
+    result = add(+num1, +num2);
   } else if (operator === "minus") {
-    num1 = subtract(+num1, +num2);
+    result = subtract(+num1, +num2);
   } else if (operator === "times") {
-    num1 = multiply(+num1, +num2);
+    result = multiply(+num1, +num2);
   } else if (operator === "divide") {
-    num1 = divide(+num1, +num2);
+    result = divide(+num1, +num2);
   }
 
-  num2 = 0;
   renderDisplay();
+  clearInput();
 }
 
 function getUserInput(e) {
-  if (e.target.id === "clear") {
-    clearInput();
-    return;
-  }
   if (e.target.className.includes("operator")) {
     handleOperator(e);
-    return;
   } else if (e.target.className.includes("number")) {
-    handleNumbers(e);
+    result = handleNumbers(e);
   }
+
+  renderDisplay();
 }
 
 function handleNumbers(e) {
   const num = e.target.id;
+
   if (!num1) {
-    num1 = num;
-    renderDisplay();
-    return;
+    return (num1 = num);
   }
   if (num1 && !operator) {
-    num1 += num;
-    renderDisplay();
-    return;
+    return (num1 += num);
   }
   if (!num2) {
-    num2 = num;
-    renderDisplay();
-    return;
+    return (num2 = num);
   }
 
-  num2 += num;
+  return (num2 += num);
 }
 
 function handleOperator(e) {
+  if (!num1) {
+    return;
+  }
+
+  if (num1 && !num2) {
+    operator = e.target.id;
+    return;
+  }
+
   if (num1 && num2) {
+    operator = e.target.id;
     operate();
   }
-  operator = e.target.id;
 }
 
-buttons.addEventListener("click", (e) => {
-  getUserInput(e);
-});
+buttons.addEventListener("click", getUserInput);
 
 clearBtn.addEventListener("click", () => {
+  result = 0;
   clearInput();
   renderDisplay();
 });
 
 equalsBtn.addEventListener("click", (e) => {
-  if (num1 && num2) {
-    operate();
+  if (!num1 || !num2) {
+    return;
   }
+  operate();
 });
