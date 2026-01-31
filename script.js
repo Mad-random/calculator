@@ -6,7 +6,8 @@ const equalsBtn = document.getElementById("equals");
 let num1 = null;
 let num2 = null;
 let operator = null;
-let result = null;
+
+let result = 0;
 
 function clearInput() {
   num1 = null;
@@ -15,7 +16,11 @@ function clearInput() {
 }
 
 function renderDisplay() {
-  console.log(result);
+  if (!Number.isInteger(+result) && result !== "XO") {
+    console.log(result);
+    display.textContent = result.toFixed(3);
+    return;
+  }
   display.textContent = result;
 }
 
@@ -32,6 +37,11 @@ function multiply(num1, num2) {
 }
 
 function divide(num1, num2) {
+  if (num2 === 0) {
+    return "XO";
+  } else if (num1 === 0) {
+    return 0;
+  }
   return num1 / num2;
 }
 
@@ -46,7 +56,6 @@ function operate() {
     result = divide(+num1, +num2);
   }
 
-  renderDisplay();
   clearInput();
 }
 
@@ -54,7 +63,7 @@ function getUserInput(e) {
   if (e.target.className.includes("operator")) {
     handleOperator(e);
   } else if (e.target.className.includes("number")) {
-    result = handleNumbers(e);
+    handleNumbers(e);
   }
 
   renderDisplay();
@@ -64,20 +73,23 @@ function handleNumbers(e) {
   const num = e.target.id;
 
   if (!num1) {
-    return (num1 = num);
+    result = num1 = num;
+    return;
   }
   if (num1 && !operator) {
-    return (num1 += num);
+    result = num1 += num;
+    return;
   }
   if (!num2) {
-    return (num2 = num);
+    result = num2 = num;
+    return;
   }
 
-  return (num2 += num);
+  result = num2 += num;
 }
 
 function handleOperator(e) {
-  if (!num1) {
+  if (!num1 && !result) {
     return;
   }
 
@@ -87,8 +99,10 @@ function handleOperator(e) {
   }
 
   if (num1 && num2) {
-    operator = e.target.id;
     operate();
+    operator = e.target.id;
+    num1 = result;
+    num2 = null;
   }
 }
 
@@ -105,4 +119,8 @@ equalsBtn.addEventListener("click", (e) => {
     return;
   }
   operate();
+  renderDisplay();
+  operator = e.target.id;
+  num1 = result;
+  num2 = null;
 });
