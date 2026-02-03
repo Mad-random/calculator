@@ -1,126 +1,131 @@
-const buttons = document.getElementById("buttons-container");
-const display = document.getElementById("display-digits");
-const clearBtn = document.getElementById("clear");
+const btns = document.getElementById("buttons-container");
 const equalsBtn = document.getElementById("equals");
+const clearBtn = document.getElementById("clear");
 
-let num1 = null;
-let num2 = null;
+const divideBy0Error = "sorry";
+
+let firstOperand = null;
+let secondOperand = null;
 let operator = null;
 
-let result = 0;
+let displayedNumber = 0;
 
-function clearInput() {
-  num1 = null;
-  num2 = null;
-  operator = null;
+function add(firstOperand, secondOperand) {
+  return firstOperand + secondOperand;
+}
+
+function subtract(firstOperand, secondOperand) {
+  return firstOperand - secondOperand;
+}
+
+function multiply(firstOperand, secondOperand) {
+  return firstOperand * secondOperand;
+}
+
+function divide(firstOperand, secondOperand) {
+  if (secondOperand === 0) {
+    return divideBy0Error;
+  } else if (firstOperand === 0) {
+    return 0;
+  }
+  return firstOperand / secondOperand;
 }
 
 function renderDisplay() {
-  if (!Number.isInteger(+result) && result !== "XO") {
-    console.log(result);
-    display.textContent = result.toFixed(3);
+  const displayNumbersEl = document.getElementById("display-numbers");
+
+  if (
+    !Number.isInteger(+displayedNumber) &&
+    displayedNumber !== divideBy0Error
+  ) {
+    displayNumbersEl.textContent = displayedNumber.toFixed(3);
     return;
   }
-  display.textContent = result;
+
+  displayNumbersEl.textContent = displayedNumber;
 }
 
-function add(num1, num2) {
-  return num1 + num2;
+function clearInput() {
+  firstOperand = null;
+  secondOperand = null;
+  operator = null;
 }
 
-function subtract(num1, num2) {
-  return num1 - num2;
+function resetForNextInput(clickedOperator) {
+  firstOperand = displayedNumber;
+  secondOperand = null;
+  operator = clickedOperator;
 }
 
-function multiply(num1, num2) {
-  return num1 * num2;
-}
-
-function divide(num1, num2) {
-  if (num2 === 0) {
-    return "XO";
-  } else if (num1 === 0) {
-    return 0;
-  }
-  return num1 / num2;
-}
-
-function operate() {
-  if (operator === "plus") {
-    result = add(+num1, +num2);
-  } else if (operator === "minus") {
-    result = subtract(+num1, +num2);
-  } else if (operator === "times") {
-    result = multiply(+num1, +num2);
+function operate(firstOperand, operator, secondOperand) {
+  if (operator === "add") {
+    return add(+firstOperand, +secondOperand);
+  } else if (operator === "subtract") {
+    return subtract(+firstOperand, +secondOperand);
+  } else if (operator === "multiply") {
+    return multiply(+firstOperand, +secondOperand);
   } else if (operator === "divide") {
-    result = divide(+num1, +num2);
+    return divide(+firstOperand, +secondOperand);
   }
-
-  clearInput();
 }
 
-function getUserInput(e) {
-  if (e.target.className.includes("operator")) {
-    handleOperator(e);
-  } else if (e.target.className.includes("number")) {
-    handleNumbers(e);
+function assignOperands(number) {
+  if (!firstOperand) {
+    firstOperand = number;
+    displayedNumber = firstOperand;
+  } else if (firstOperand && !operator) {
+    firstOperand += number;
+    displayedNumber = firstOperand;
+  } else if (!secondOperand) {
+    secondOperand = number;
+    displayedNumber = secondOperand;
+  } else if (secondOperand) {
+    secondOperand += number;
+    displayedNumber = secondOperand;
   }
 
   renderDisplay();
 }
 
-function handleNumbers(e) {
-  const num = e.target.id;
-
-  if (!num1) {
-    result = num1 = num;
-    return;
-  }
-  if (num1 && !operator) {
-    result = num1 += num;
-    return;
-  }
-  if (!num2) {
-    result = num2 = num;
+function assignOperator(clickedOperator) {
+  if (!firstOperand) {
     return;
   }
 
-  result = num2 += num;
-}
-
-function handleOperator(e) {
-  if (!num1 && !result) {
+  if (!operator) {
+    operator = clickedOperator;
     return;
-  }
-
-  if (num1 && !num2) {
-    operator = e.target.id;
+  } else if (!secondOperand) {
+    operator = clickedOperator;
     return;
-  }
+  } else if (firstOperand && secondOperand && operator) {
+    displayedNumber = operate(firstOperand, operator, secondOperand);
+    renderDisplay(displayedNumber);
 
-  if (num1 && num2) {
-    operate();
-    operator = e.target.id;
-    num1 = result;
-    num2 = null;
+    resetForNextInput(clickedOperator);
   }
 }
 
-buttons.addEventListener("click", getUserInput);
-
-clearBtn.addEventListener("click", () => {
-  result = 0;
-  clearInput();
-  renderDisplay();
+btns.addEventListener("click", (e) => {
+  if (e.target.classList.contains("number")) {
+    const number = e.target.id;
+    displayedNumber = assignOperands(number);
+  } else if (e.target.classList.contains("operator")) {
+    const clickedOperator = e.target.id;
+    displayedNumber = assignOperator(clickedOperator);
+  }
 });
 
 equalsBtn.addEventListener("click", (e) => {
-  if (!num1 || !num2) {
+  if (!firstOperand || !secondOperand) {
     return;
   }
-  operate();
+  displayedNumber = operate(firstOperand, operator, secondOperand);
   renderDisplay();
-  operator = e.target.id;
-  num1 = result;
-  num2 = null;
+});
+
+clearBtn.addEventListener("click", () => {
+  displayedNumber = 0;
+  clearInput();
+  renderDisplay();
 });
