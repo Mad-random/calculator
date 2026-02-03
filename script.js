@@ -7,6 +7,7 @@ const divideBy0Error = "sorry";
 let firstOperand = null;
 let secondOperand = null;
 let operator = null;
+let isCalculationFinshed = false;
 
 let displayedNumber = 0;
 
@@ -92,6 +93,13 @@ function assignOperator(clickedOperator) {
     return;
   }
 
+  if (isCalculationFinshed) {
+    resetForNextInput(clickedOperator);
+    renderDisplay();
+    isCalculationFinshed = false;
+    return;
+  }
+
   if (!operator) {
     operator = clickedOperator;
     return;
@@ -108,6 +116,11 @@ function assignOperator(clickedOperator) {
 
 btns.addEventListener("click", (e) => {
   if (e.target.classList.contains("number")) {
+    if (isCalculationFinshed) {
+      clearInput();
+      isCalculationFinshed = false;
+    }
+
     const number = e.target.id;
     displayedNumber = assignOperands(number);
   } else if (e.target.classList.contains("operator")) {
@@ -122,6 +135,7 @@ equalsBtn.addEventListener("click", (e) => {
   }
   displayedNumber = operate(firstOperand, operator, secondOperand);
   renderDisplay();
+  isCalculationFinshed = true;
 });
 
 clearBtn.addEventListener("click", () => {
