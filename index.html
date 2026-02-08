@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Calculator</title>
     <link rel="stylesheet" href="style.css"></link>
-    <script src="script.js" defer></script>
+    <script src="script2.js" defer></script>
   </head>
   <body>
     <div class="container">
@@ -14,7 +14,10 @@
           <div class="display__numbers" id="display-numbers">0</div>
         </div> 
         <div>
-          <button class="btn clear" id="clear">C</button>
+          <div class="first-row-btns">
+            <button class="btn clear" id="clear">C</button>
+            <button class="btn backspace" id="backspace"><img src="./images/backspace-svgrepo-com.svg"></button>
+          </div>
           <div class="buttons-container" id="buttons-container">
             <button class="btn number" id="7">7</button>
             <button class="btn number" id="8">8</button>
@@ -29,7 +32,7 @@
             <button class="btn number" id="3">3</button> 
             <button class="btn operator" id="subtract">&minus;</button> 
             <button class="btn number" id="0">0</button>
-            <button class="btn" id=".">.</button> 
+            <button class="btn number" id=".">.</button> 
             <button class="btn" id="equals">=</button> 
             <button class="btn operator" id="add">+</btn>  
           </div>
