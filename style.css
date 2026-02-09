@@ -77,6 +77,10 @@ button {
   border: none;
 }
 
+.clicked-operator {
+  background-color: rgb(174, 231, 223);
+}
+
 .backspace {
   width: 100px;
 }

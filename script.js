@@ -2,6 +2,7 @@ const displayNumbersEl = document.getElementById("display-numbers");
 const clearBtn = document.getElementById("clear");
 const backSpaceBtn = document.getElementById("backspace");
 const btns = document.getElementById("buttons-container");
+const operatorBtns = document.querySelectorAll(".operator");
 const equalsBtn = document.getElementById("equals");
 
 const divideBy0Error = "sorry";
@@ -26,8 +27,6 @@ function add(firstOperand, secondOperand) {
 }
 
 function subtract(firstOperand, secondOperand) {
-  // console.log(firstOperand);
-  // console.log(secondOperand);
   return firstOperand - secondOperand;
 }
 
@@ -44,29 +43,6 @@ function divide(firstOperand, secondOperand) {
   return firstOperand / secondOperand;
 }
 
-function updateDisplay() {
-  if (displayValue === "") {
-    displayValue = "0";
-  }
-  displayNumbersEl.textContent = displayValue;
-}
-
-function clearOperationValues() {
-  firstOperand = null;
-  secondOperand = null;
-  operator = null;
-}
-
-function clearUserInput() {
-  userInputValue = "";
-}
-
-function deleteLastNumber() {
-  userInputValue = userInputValue.slice(0, -1);
-  displayValue = userInputValue;
-  updateDisplay();
-}
-
 function operate(firstOperand, operator, secondOperand) {
   if (operator === "add") {
     return add(firstOperand, secondOperand);
@@ -77,6 +53,30 @@ function operate(firstOperand, operator, secondOperand) {
   } else if (operator === "divide") {
     return divide(firstOperand, secondOperand);
   }
+}
+
+function clearOperationValues() {
+  firstOperand = null;
+  secondOperand = null;
+  operator = null;
+}
+
+function deleteLastNumber() {
+  userInputValue = userInputValue.slice(0, -1);
+  if (userInputValue.length < 1) {
+    displayValue = "0";
+  } else {
+    displayValue = userInputValue;
+  }
+
+  updateDisplay();
+}
+
+function updateDisplay() {
+  if (displayValue.length > 8) {
+    displayValue = displayValue.slice(0, 8);
+  }
+  displayNumbersEl.textContent = displayValue;
 }
 
 function assignFirstOperand(value) {
@@ -96,57 +96,49 @@ function assignSecondOperand(value) {
   return true;
 }
 
+function assignOperator(op) {
+  operator = op;
+
+  operatorBtns.forEach((btn) => {
+    if (btn.id !== op) {
+      btn.classList.remove("clicked-operator");
+    } else if (btn.id === op) {
+      btn.classList.add("clicked-operator");
+    }
+  });
+}
+
+function removeOperatorbg() {
+  operatorBtns.forEach((btn) => {
+    if (btn.classList.contains("clicked-operator")) {
+      btn.classList.remove("clicked-operator");
+    }
+  });
+}
+
 function calculate() {
   calculationResult = operate(firstOperand, operator, secondOperand);
-  displayValue = calculationResult;
+  displayValue = calculationResult.toString();
   updateDisplay();
-  clearUserInput();
+  userInputValue = "";
   clearOperationValues();
 }
 
-clearBtn.addEventListener("click", () => {
-  clearOperationValues();
-  clearUserInput();
-  displayValue = "0";
+function handleNumberInput(input) {
+  if (input === "." && userInputValue.includes(".")) {
+    return;
+  }
+
+  userInputValue += input;
+  displayValue = userInputValue;
   updateDisplay();
-  calculatorMode = firstOperandMode;
-});
-
-backSpaceBtn.addEventListener("click", () => {
-  deleteLastNumber();
-});
-
-equalsBtn.addEventListener("click", (e) => {
-  if (calculatorMode === secondOperandMode) {
-    if (assignSecondOperand(userInputValue)) {
-      calculate();
-      calculatorMode = standByMode;
-    }
-  }
-});
-
-document.addEventListener("keyup", (e) => {
-  handleKeyboard(e);
-});
-
-btns.addEventListener("click", (e) => {
-  if (e.target.classList.contains("number")) {
-    if (calculatorMode === standByMode) {
-      calculatorMode = firstOperandMode;
-    }
-    const input = e.target.id;
-    handleNumberInput(input);
-  } else if (e.target.classList.contains("operator")) {
-    const clickedOperator = e.target.id;
-    handleModes(clickedOperator);
-  }
-});
+}
 
 function handleModes(clickedOperator) {
   if (calculatorMode === firstOperandMode) {
     if (assignFirstOperand(userInputValue)) {
-      operator = clickedOperator;
-      clearUserInput();
+      assignOperator(clickedOperator);
+      userInputValue = "";
       calculatorMode = secondOperandMode;
     }
   } else if (calculatorMode === secondOperandMode) {
@@ -154,10 +146,10 @@ function handleModes(clickedOperator) {
       calculate();
       assignFirstOperand(calculationResult);
     }
-    operator = clickedOperator;
+    assignOperator(clickedOperator);
   } else if (calculatorMode === standByMode) {
     assignFirstOperand(calculationResult);
-    operator = clickedOperator;
+    assignOperator(clickedOperator);
     calculatorMode = secondOperandMode;
   }
 }
@@ -224,12 +216,43 @@ function handleKeyboard(e) {
   }
 }
 
-function handleNumberInput(input) {
-  if (input === "." && userInputValue.includes(".")) {
-    return;
-  }
-
-  userInputValue += input;
-  displayValue = userInputValue;
+clearBtn.addEventListener("click", () => {
+  clearOperationValues();
+  userInputValue = "";
+  displayValue = "0";
   updateDisplay();
-}
+  calculatorMode = firstOperandMode;
+  removeOperatorbg();
+});
+
+backSpaceBtn.addEventListener("click", () => {
+  deleteLastNumber();
+});
+
+btns.addEventListener("click", (e) => {
+  if (e.target.classList.contains("number")) {
+    if (calculatorMode === standByMode) {
+      calculatorMode = firstOperandMode;
+    }
+    const input = e.target.id;
+    handleNumberInput(input);
+  } else if (e.target.classList.contains("operator")) {
+    const clickedOperator = e.target.id;
+    handleModes(clickedOperator);
+  }
+});
+
+equalsBtn.addEventListener("click", (e) => {
+  if (calculatorMode === secondOperandMode) {
+    if (assignSecondOperand(userInputValue)) {
+      calculate();
+      calculatorMode = standByMode;
+
+      removeOperatorbg();
+    }
+  }
+});
+
+document.addEventListener("keyup", (e) => {
+  handleKeyboard(e);
+});
